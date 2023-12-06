@@ -1,5 +1,6 @@
 #ifndef __TEST_J_H__
 #define __TEST_J_H__
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
 #ifdef __cplusplus
 extern "C"

@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#include "test_j.h"
 
 // gcc -lm test_j.c -o test_j
 
