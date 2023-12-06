@@ -28,21 +28,22 @@ void init_jp(jp_struct *j)
     j->S_sub_k = pow(j->g, 2) * pow((2 * j->pi), -4);
 }
 
-double func_jp(jp_struct *j, double f, double fp, double fptilde)
+fptilde_struct *init_fpt(fptilde_struct *fpt_struct, jp_struct *j, double fptilde)
 {
+    fpt_struct->fpt = MAX(fptilde, j->fptildemin);
 
-    double fpt = MAX(fptilde, j->fptildemin);
+    fpt_struct->alpha = j->aC * pow(fpt_struct->fpt, j->aX);
+    fpt_struct->gamma = j->gC * pow(fpt_struct->fpt, j->gX);
+    fpt_struct->sigma_a = j->saC * pow(fpt_struct->fpt, j->saX);
+    fpt_struct->sigma_b = j->sbC * pow(fpt_struct->fpt, j->sbX);
+    return fpt_struct;
+}
 
-    double alpha = j->aC * pow(fpt, j->aX);
-    double gamma = j->gC * pow(fpt, j->gX);
-    double sigma_a = j->saC * pow(fpt, j->saX);
-    double sigma_b = j->sbC * pow(fpt, j->sbX);
+double func_jp(jp_struct *j, double f, double fp, fptilde_struct *fpt)
+{
     double exp1arg = -1.25 * pow((f / fp), -4);
-    double sigma = (f <= fp) * sigma_a + (f > fp) * sigma_b;
-
+    double sigma = (f <= fp) ? (fpt->sigma_a) : (fpt->sigma_b);
     double exp2arg = -0.5 * pow((f - fp) / (sigma * fp), 2);
-
-    double S = alpha * (j->S_sub_k) * pow(f, -5) * exp(exp1arg) * pow(gamma, exp(exp2arg));
-
+    double S = fpt->alpha * (j->S_sub_k) * pow(f, -5) * exp(exp1arg) * pow(fpt->gamma, exp(exp2arg));
     return S;
 }
