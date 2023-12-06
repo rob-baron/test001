@@ -37,14 +37,15 @@ fptilde_struct *init_fpt(fptilde_struct *fpt_struct, jp_struct *j, double fptild
     fpt_struct->gamma = j->gC * pow(fpt_struct->fpt, j->gX);
     fpt_struct->sigma_a = j->saC * pow(fpt_struct->fpt, j->saX);
     fpt_struct->sigma_b = j->sbC * pow(fpt_struct->fpt, j->sbX);
+    fpt_struct->S_sub_kp = fpt_struct->alpha * j->S_sub_k;
     return fpt_struct;
 }
 
-double func_jp(jp_struct *j, double f, double fp, fptilde_struct *fpt)
+double func_jp(double f, double fp, fptilde_struct *fpt)
 {
     double exp1arg = -1.25 * pow((f / fp), -4);
     double sigma = (f <= fp) ? (fpt->sigma_a) : (fpt->sigma_b);
     double exp2arg = -0.5 * pow((f - fp) / (sigma * fp), 2);
-    double S = fpt->alpha * (j->S_sub_k) * pow(f, -5) * exp(exp1arg) * pow(fpt->gamma, exp(exp2arg));
+    double S = fpt->S_sub_kp * pow(f, -5) * exp(exp1arg) * pow(fpt->gamma, exp(exp2arg));
     return S;
 }

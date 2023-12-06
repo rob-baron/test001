@@ -256,6 +256,8 @@ To:
 
 After making multip runs of both of these lines, I currently cannot tell which one is faster.  I am going to go with the second version as it only requires 1 comparison and 1 assignment, where as the original version requires 2 comparisions an addition and an assignmentment.
 
+Moved the computation of alpha * j->S_sub_k could be moved to the init_fpt function, which makes the inner loop a little bit smaller. This shaves off about 90 milli seconds.
+
 And finally, noticing the following line in the ```C fptilde_struct *init_fpt(fptilde_struct *fpt_struct, jp_struct *j, double fptilde)```:
 ``` C
     fpt_struct->fpt = MAX(fptilde, j->fptildemin);
@@ -267,22 +269,23 @@ Running main() from /App/cmake-3.27.9/googletest/googletest/src/gtest_main.cc
 [----------] Global test environment set-up.
 [----------] 1 test from Optimization
 [ RUN      ] Optimization.Correctness
-[       OK ] Optimization.Correctness (175820 ms)
+[       OK ] Optimization.Correctness (175866 ms)
 [ DISABLED ] Optimization.DISABLED_ShortCorrectness
-[----------] 1 test from Optimization (175820 ms total)
+[----------] 1 test from Optimization (175866 ms total)
 
 [----------] 1 test from Performance
 [ DISABLED ] Performance.DISABLED_Original
 [ RUN      ] Performance.Optimized
-[       OK ] Performance.Optimized (33893 ms)
-[----------] 1 test from Performance (33893 ms total)
+[       OK ] Performance.Optimized (33806 ms)
+[----------] 1 test from Performance (33806 ms total)
 
 [----------] Global test environment tear-down
-[==========] 2 tests from 2 test suites ran. (209713 ms total)
+[==========] 2 tests from 2 test suites ran. (209672 ms total)
 [  PASSED  ] 2 tests.
 
   YOU HAVE 2 DISABLED TESTS
 ```
+
 ## The smallness of this example
 This example was small enough that it was obvious from inpspection as to which function needed attention - ie, you always optimize the inner loop and move computation outward.
 

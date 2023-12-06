@@ -26,6 +26,7 @@ typedef struct
     double gamma;
     double sigma_a;
     double sigma_b;
+    double S_sub_kp;
 } fptilde_struct;
 
 #ifdef __cplusplus
@@ -34,7 +35,7 @@ extern "C"
 #endif
     void init_jp(jp_struct *j);
     fptilde_struct *init_fpt(fptilde_struct *fpt_struct, jp_struct *j, double fptilde);
-    double func_jp(jp_struct *j, double f, double fp, fptilde_struct *fpt);
+    double func_jp(double f, double fp, fptilde_struct *fpt);
     void run_opt_j();
 #ifdef __cplusplus
 }

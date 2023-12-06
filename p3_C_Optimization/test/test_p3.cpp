@@ -44,7 +44,7 @@ namespace
                         fp = fp_int / 100.0;
 
                         S_old = function_j(f, fp, fptilde);
-                        S_new = func_jp(&j, f, fp, fpt);
+                        S_new = func_jp(f, fp, fpt);
                         double diff = fabs(S_old - S_new);
                         double abs_S_old, abs_S_new, err;
                         abs_S_old = fabs(S_old);
@@ -91,7 +91,7 @@ namespace
                         fp = fp_int / 100.0;
 
                         S_old = function_j(f, fp, fptilde);
-                        S_new = func_jp(&j, f, fp, fpt);
+                        S_new = func_jp(f, fp, fpt);
                         EXPECT_DOUBLE_EQ(S_old, S_new)
                             << "f=" << f << " f_int=" << f_int << std::endl
                             << "fp=" << fp << " fp_int=" << fp_int << std::endl
@@ -151,7 +151,7 @@ namespace
                     for (fp_int = 0; fp_int <= 1000; fp_int += 1)
                     {
                         fp = fp_int / 100.0;
-                        S = func_jp(&j, f, fp, fpt);
+                        S = func_jp(f, fp, fpt);
                     }
                 }
             }
