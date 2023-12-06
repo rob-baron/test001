@@ -120,7 +120,12 @@ fptilde=10
  1 FAILED TEST
 ```
 
-What this means is the the function being calculated is ill defined for certain values of f, fp, and fptilde.  It is something to point out to the person who was responsible for deriving it in the first place as they may have made a mistake.  I sent and email asking for clarification.
+This failure is due to the pow(f,-5) when f=0 being taken in the function "function_j", with the line:
+
+``` C
+  double S = alpha * pow(g, 2) * pow((2 * pi), -4) * pow(f, -5) * exp(exp1arg) * pow(gamma, exp(exp2arg));
+```
+I don't see an easy way around this except by not calculating S when f=0.  It is something to explore a bit more, and perhaps bring up with the person who derived the equations being implemented or other expert in the field.
 
 ## Some optimizations
 by doing the obvious precalculation of constants, this here is the current time as per gtest:
@@ -287,6 +292,6 @@ There are other things that can be done, for example, I suspect that that many o
 
 Also, I suspect the mathmatics could be simplified, however, I don't know exactly what the original equations are and am hesitant to change the basic mathmatics without knowing more context, both from a scientific perspective and where this program fits into the general processing.
 
-I considered caching the parts of the function "func_j" that depend only on (f,fp), that is to perform a look up and calculate if it is not present
+I considered caching the parts of the function "func_j" that depend only on (f,fp), that is to perform a look up and calculate if it is not present.  I may dd this, but have to consider how much memory this will use and what the structure will look like.
 
 Without changing the mathmatics of how the computation was done, the runtime was decrease to approximately a third of the original (from 102025 ms to 33893 ms).

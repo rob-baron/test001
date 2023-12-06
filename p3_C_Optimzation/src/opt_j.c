@@ -30,7 +30,8 @@ void init_jp(jp_struct *j)
 
 fptilde_struct *init_fpt(fptilde_struct *fpt_struct, jp_struct *j, double fptilde)
 {
-    fpt_struct->fpt = MAX(fptilde, j->fptildemin);
+    // fpt_struct->fpt = MAX(fptilde, j->fptildemin);
+    fpt_struct->fpt = fptilde;
 
     fpt_struct->alpha = j->aC * pow(fpt_struct->fpt, j->aX);
     fpt_struct->gamma = j->gC * pow(fpt_struct->fpt, j->gX);
