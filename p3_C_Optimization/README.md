@@ -1,10 +1,22 @@
 # C Optimization
 
+## Methodology
+
+The basic methodology I followed was to make the inner loop as small as possible without changing any of the math and to check that the optmiizations did infact produce a change in the overall amount of time required to run the process.  The basic process I used was to:
+
+1) review the code - is there any obvious optimizations that could be done
+2) figure out how to test to confirm correctness and overall speed
+3) repeat.
+
+This example was simple enough to not require gprof - or any profiling tool.  I have used profilers in the past and will include a run of gprof, but for this example a profiler was not useful as I could tell from inspection where the inner loop was and that most of the time was spent in "function_j".
+
+The real question is how to get the test cycle down to be able to check for correctness and for performance in a meaningfull way.  To this end I used google test, which I have found to be reasonably easy to use and cross platform.
+
 ## Initial Review
 
-The simplest strategy to follow is to optimize the inner loop.  Before even running the code, I reviewed it to get a sense of what is doing.  Since the "function_j" does work on constants, it can easily be improved by moving all of the calculations that involve constants into an initialization routine that sets a structure with those constants to the formulation of the constansts.  Granted the results of this calculation could be done before run time and entered into a configuration file, but as these calculation don't take much time, it is more flexible if it is done in the code.
+Before even running the code, I reviewed it to get a sense of what is doing.  Since the "function_j" does work on constants, it can easily be improved by moving all of the calculations that involve constants into an initialization routine that sets a structure with those constants to the formulation of the constansts.  Granted the results of this calculation could be done before run time and entered into a configuration file, but as these calculation don't take much time, it is more flexible if it is done in the code.
 
-I am also wondering if all of the logarithms and expodentails are necessary.  I am assuming that they are, but that is another avenue.  As my one professor stated, derive before compute - it can save time.
+I am also wondering if all of the logarithms and expodentails are necessary.  I am assuming that they are, but that is another avenue.  As my one professor stated, derive before compute - it can save time.  I will explore this after I complete the other exercises as this typically takes more time to get right.
 
 ## created initialization function
 
