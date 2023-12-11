@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 # this sets up the development environment
 # gives us some development tools + google test
 RUN apt-get update \
-    && apt-get install -y build-essential libtool autoconf unzip wget gcc g++ libssl-dev git gdb gfortran \
+    && apt-get install -y build-essential libtool autoconf unzip wget gcc g++ libssl-dev git gdb gfortran curl gnuplot \
     && mkdir -p /App \
     && cd /App \
     && wget https://github.com/Kitware/CMake/releases/download/v3.27.9/cmake-3.27.9.tar.gz \
