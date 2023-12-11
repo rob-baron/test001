@@ -1,0 +1,12 @@
+FROM c-fortran-dev
+
+WORKDIR /App
+
+RUN cd /App \
+    && mkdir /App/iri2016 \
+    && cd iri2016 \
+    && wget http://irimodel.org/IRI-2016/00_iri.tar \
+    && tar -xvf 00_iri.tar \
+    && wget http://irimodel.org/indices/apf107.dat \
+    && wget http://irimodel.org/indices/ig_rz.dat \
+    && f77 -share -o iri.so iritest.for irisub.for irifun.for iritec.for iridreg.for igrf.for cira.for iriflip.for
