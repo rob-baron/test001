@@ -1,4 +1,3 @@
-
 CC:=gcc
 CCFLAGS:=-I.
 CPP:=g++
