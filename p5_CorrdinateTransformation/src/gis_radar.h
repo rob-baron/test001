@@ -10,6 +10,7 @@
 #define ERROR_100 100
 #define LATLON_STRLEN 100
 #define EARTH_RADIUS 6371 // in km
+#define TOLERANCE 0.000000001
 
 // error_msg[1]="internal Error";
 // error_msg[2]="input string does not match '^([0-9]+[.]?[0-9]*)([NSEW])$'";
@@ -22,6 +23,12 @@
 extern "C"
 {
 #endif
+    enum axis_t
+    {
+        XAXIS,
+        YAXIS,
+        ZAXIS
+    };
 
     typedef struct
     {
@@ -46,38 +53,42 @@ extern "C"
         double theta;
         double phi;
         double rho;
-    } polar_t;
+    } spherical_t;
 
     int cvt_string(char *input, double *num, char *c);
     int force_range(double *value, double min, double max, double tollerance);
 
     /* converts latitude string ("10N") to a double () */
     int latstr2double(char *latstr, double *latdouble);
-
     /* converts lognitude string ("10W" to a double () */
     int lonstr2double(char *lonstr, double *londouble);
-
     int latdouble2str(double latdboule, char *latstr, unsigned long n);
     int londouble2str(double londouble, char *lonstr, unsigned long n);
-
     int loc_str2double(location_str_t *locstr, location_t *loc);
     int loc_double2str(location_t *loc, location_str_t *locstr);
-    int location2polar(location_t *loc, double rho, polar_t *p);
-    int location2polar(location_t *loc, double rho, polar_t *p);
-    int vector_sub(double *vec1, double *vec2, double *result_vec, int n);
+
+    int location2spherical(location_t *loc, double rho, spherical_t *p);
+    int location2spherical(location_t *loc, double rho, spherical_t *p);
+    int spherical2cartesian(spherical_t *pc, double *a);
+    int cartesian2spherical(double *a, spherical_t *pc);
     int cmpfp(double a, double b, double tollerance);
+    int vec_isequal(double *vec1, double *vec2, int n, double tollarance);
 
     double deg2rad(double deg);
     double rad2deg(double rad);
 
-    double vector_magnitude(double *vec, int n);
+    int loc_isequal(location_t *loc1, location_t *loc2);
+    int spherical_isequal(spherical_t *loc1, spherical_t *loc2);
+    int radar_isequal(radar_t *rad1, radar_t *rad2);
+
+    double vec_mag(double *vec, int n);
+    int vec_sub(double *, double *, double *, int n);
+    int matrix_vec_multiply(double *matrix, double *vec, int n, int m, double *vec_out);
+    int rotate_vec(double *vec, double theata, enum axis_t axis, double *vec_rotated);
 
     /* given a location(lat/long)*/
     int gis2radar(location_str_t *loc1, location_str_t *loc2, radar_t *radar);
     int radar2gis(location_str_t *loc, radar_t *radar, location_str_t *loc2);
-
-    double radians2degrees(double rad);
-    double degrees2radians(double deg);
 
 #ifdef __cplusplus
 }

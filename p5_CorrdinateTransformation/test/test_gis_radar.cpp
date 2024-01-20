@@ -204,4 +204,164 @@ namespace
         ASSERT_EQ(0, cmpfp(deg2rad(180), M_PI, 0.00001));
     }
 
+    TEST(vec_isequal, correctness1)
+    {
+        double vec1[3] = {0.0, 0.0, 1.0000};
+        double vec2[3] = {0.0, 0.0, 1.0000};
+        double vec3[3] = {0.0, 1.0, 1.0000};
+        ASSERT_EQ(1, vec_isequal(vec1, vec2, 3, 0.0001)) << "vec1,vec2"
+                                                         << "[ " << vec1[0] << "," << vec1[1] << "," << vec1[2] << "]"
+                                                         << "[ " << vec2[0] << "," << vec2[1] << "," << vec2[2] << "]" << std::endl;
+        ASSERT_EQ(0, vec_isequal(vec2, vec3, 3, 0.0001)) << "vec2,vec3"
+                                                         << "[ " << vec2[0] << "," << vec2[1] << "," << vec2[2] << "]"
+                                                         << "[ " << vec3[0] << "," << vec3[1] << "," << vec3[2] << "]" << std::endl;
+    }
+
+    TEST(spherical2cartesian, 0_0_5)
+    {
+        spherical_t pc;
+        double a[3];
+        double cmp_vec[3];
+        int ec;
+
+        pc = {0, 0, 5};
+        cmp_vec[0] = 0.0;
+        cmp_vec[1] = 0.0;
+        cmp_vec[2] = 5.0;
+        ec = spherical2cartesian(&pc, a);
+        ASSERT_EQ(0, ec);
+        ASSERT_EQ(1, vec_isequal(a, cmp_vec, 3, 0.00001)) << "[ " << a[0] << ", " << a[1] << ", " << a[2] << " ]"
+                                                          << "[ " << cmp_vec[0] << ", " << cmp_vec[1] << ", " << cmp_vec[2] << " ]"
+                                                          << std::endl;
+    }
+
+    TEST(vec_sub, correctness)
+    {
+        double a[3] = {1.0, 2.0, 3.0};
+        double b[3] = {0.1, 0.2, 0.3};
+        double c[3] = {-1, -1, -1};
+        double d[3] = {0.9, 1.8, 2.7};
+        int ec;
+
+        ec = vec_sub(a, b, c, 3);
+        ASSERT_EQ(0, ec);
+        ASSERT_EQ(1, vec_isequal(c, d, 3, 0.0000001)) << "[ " << c[0] << ", " << c[1] << ", " << c[2] << " ]"
+                                                      << "[ " << d[0] << ", " << d[1] << ", " << d[2] << " ]"
+                                                      << std::endl;
+    }
+
+    TEST(vec_magnitude, correctness)
+    {
+        double a[3] = {0.0, 0.0, 5.0};
+        double mag;
+
+        mag = vec_mag(a, 3);
+        ASSERT_EQ(5, mag);
+    }
+
+    TEST(matrix_vec_multiply, identity_vec)
+    {
+        double matrix[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+        double vec1[3] = {1, 2, 3};
+        double vec2[3];
+        matrix_vec_multiply(matrix, vec1, 3, 3, vec2);
+        vec_isequal(vec1, vec2, 3, 0.000001);
+    }
+
+    TEST(radar_isequal, correctness)
+    {
+        radar_t rad1 = {5.0, 45.00},
+                rad2 = {5.0, 45.00},
+                rad3 = {4.0, 40.00};
+        ASSERT_EQ(1, radar_isequal(&rad1, &rad2)) << "rad1 != rad2" << std::endl;
+        ASSERT_EQ(0, radar_isequal(&rad1, &rad3)) << "rad1 == rad3" << std::endl;
+    }
+
+    TEST(gis2radar, ex0N0Eto1N0E_1)
+    {
+        location_t loc1, loc2;
+        location_str_t locstr1 = {"0N", "0E"},
+                       locstr2 = {"1N", "0E"};
+        loc_str2double(&locstr1, &loc1);
+        loc_str2double(&locstr2, &loc2);
+        location_t cmp_loc1 = {90.0, 180.0},
+                   cmp_loc2 = {89.0, 180.0};
+        ASSERT_EQ(1, loc_isequal(&loc1, &cmp_loc1)) << "loc 1 = [" << loc1.latitude << "," << loc1.longitude << "]" << std::endl;
+        ASSERT_EQ(1, loc_isequal(&loc2, &cmp_loc2)) << "loc 2 = [" << loc2.latitude << "," << loc2.longitude << "]" << std::endl;
+    }
+
+    TEST(gis2radar, ex0N0Eto1N0E_2)
+    {
+        location_t loc1 = {90.0, 180.0},
+                   loc2 = {89.0, 180.0};
+        spherical_t loc_spherical1, loc_spherical2;
+        location2spherical(&loc1, EARTH_RADIUS, &loc_spherical1);
+        location2spherical(&loc2, EARTH_RADIUS, &loc_spherical2);
+        // spherical coordinates in radians
+        spherical_t cmp_loc_spherical1 = {M_PI / 2, M_PI, EARTH_RADIUS},
+                    cmp_loc_spherical2 = {89.0 * M_PI / 180.0, M_PI, EARTH_RADIUS};
+        ASSERT_EQ(1, spherical_isequal(&loc_spherical1, &cmp_loc_spherical1)) << "loc 1 = [" << loc_spherical1.theta << "," << loc_spherical1.phi << "," << loc_spherical1.rho << "]\n"
+                                                                              << "cmp 1 = [" << cmp_loc_spherical1.theta << "," << cmp_loc_spherical1.phi << "," << cmp_loc_spherical1.rho << "]" << std::endl;
+        ASSERT_EQ(1, spherical_isequal(&loc_spherical2, &cmp_loc_spherical2)) << "loc 2 = [" << loc_spherical2.theta << "," << loc_spherical2.phi << "," << loc_spherical2.rho << "]\n"
+                                                                              << "cmp 2 = [" << cmp_loc_spherical2.theta << "," << cmp_loc_spherical2.phi << "," << cmp_loc_spherical2.rho << "]" << std::endl;
+    }
+
+    TEST(gis2radar, ex0N0Eto1N0E_3)
+    {
+        spherical_t loc_spherical1 = {M_PI / 2, M_PI, EARTH_RADIUS},
+                    loc_spherical2 = {89.0 * M_PI / 180.0, M_PI, EARTH_RADIUS};
+        double loc_vec1[3] = {0, 0, 0}, loc_vec2[3] = {0, 0, 0};
+        spherical2cartesian(&loc_spherical1, loc_vec1);
+        spherical2cartesian(&loc_spherical2, loc_vec2);
+        double cmp_vec1[3] = {-1 * EARTH_RADIUS, 0.0, 0.0},
+               cmp_vec2[3] = {-6370.029665841369, 7.801036440746317e-13, 111.18928141193238};
+        ASSERT_EQ(1, vec_isequal(loc_vec1, cmp_vec1, 3, TOLERANCE)) << "vec 1"
+                                                                    << "[ " << loc_vec1[0] << ", " << loc_vec1[1] << ", " << loc_vec1[2] << " ]\n"
+                                                                    << "[ " << cmp_vec1[0] << ", " << cmp_vec1[1] << ", " << cmp_vec1[2] << " ]" << std::endl;
+        ASSERT_EQ(1, vec_isequal(loc_vec2, cmp_vec2, 3, TOLERANCE)) << "vec 2"
+                                                                    << "[ " << loc_vec2[0] << "," << loc_vec2[1] << "," << loc_vec2[2] << "]\n"
+                                                                    << "[ " << cmp_vec2[0] << "," << cmp_vec2[1] << "," << cmp_vec2[2] << "]" << std::endl;
+    }
+
+    TEST(gis2radar, ex0N0Eto1N0E_4)
+    {
+        double loc_vec1[3] = {-1 * EARTH_RADIUS, 0.0, 0.0},
+               loc_vec2[3] = {-6370.029665841369, 7.801036440746317e-13, 111.18928141193238},
+               cmp_vec[3] = {-0.97033415863097616, -7.801036440746317e-13, -111.18928141193238},
+               diff_vec[3];
+        vec_sub(loc_vec1, loc_vec2, diff_vec, 3);
+        ASSERT_EQ(1, vec_isequal(diff_vec, cmp_vec, 3, TOLERANCE)) << "vec sup"
+                                                                   << "[ " << diff_vec[0] << ", " << diff_vec[1] << ", " << diff_vec[2] << " ]\n"
+                                                                   << "[ " << cmp_vec[0] << ", " << cmp_vec[1] << ", " << cmp_vec[2] << " ]" << std::endl;
+    }
+
+    TEST(gis2radar, ex0N0Eto1N0E_5)
+    {
+        double vec[3] = {-0.97033415863097616, -7.801036440746317e-13, -111.18928141193238},
+               magnitude;
+        magnitude = vec_mag(vec, 3);
+        ASSERT_EQ(0, cmpfp(111.1935153202798, magnitude, TOLERANCE)) << "magnitude: " << magnitude << std::endl;
+    }
+
+    TEST(gis2radar, ex0N0Eto1N0E_6)
+    {
+        double magnitude = 111.1935153202798,
+               ang_diff;
+        ang_diff = 2 * asin(magnitude / (2 * EARTH_RADIUS)); /* in radians */
+        double range = tan(ang_diff) * EARTH_RADIUS;
+        ASSERT_EQ(0, cmpfp(111.20621865767335, range, 0.0000001)) << "range: " << range << std::endl;
+    }
+
+    /*
+       TEST(gis2radar, correctness)
+       {
+           location_str_t loc1 = {"1.0N", "0E"},
+                          loc2 = {"0N, 0E"};
+           radar_t radar, correct_radar = {111.0, 0.0};
+           int ec;
+
+           ec = gis2radar(&loc1, &loc2, &radar);
+           ASSERT_EQ(1, radar_isequal(&radar, &correct_radar)) << "[ " << radar.bearing << ", " << radar.range << " ]" << std::endl;
+       }
+   */
 } // namespace
