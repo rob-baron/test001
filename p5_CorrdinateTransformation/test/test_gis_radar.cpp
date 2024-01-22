@@ -265,7 +265,64 @@ namespace
         double vec1[3] = {1, 2, 3};
         double vec2[3];
         matrix_vec_multiply(matrix, vec1, 3, 3, vec2);
-        vec_isequal(vec1, vec2, 3, 0.000001);
+        ASSERT_EQ(1, vec_isequal(vec1, vec2, 3, 0.000001)) << "[ " << vec1[0] << ", " << vec1[1] << ", " << vec1[2] << " ]"
+                                                           << "[ " << vec2[0] << ", " << vec2[1] << ", " << vec2[2] << " ]"
+                                                           << std::endl;
+    }
+
+    TEST(matrix_vec_multiply, zrot90_vec)
+    {
+        double matrix[9] = {0, -1, 0, 1, 0, 0, 0, 0, 1};
+        double vec1[3] = {1, 0, 0};
+        double vec2[3];
+        double vec3[3] = {0, 1, 0};
+        matrix_vec_multiply(matrix, vec1, 3, 3, vec2);
+        ASSERT_EQ(1, vec_isequal(vec2, vec3, 3, 0.000001)) << "[ " << vec2[0] << ", " << vec2[1] << ", " << vec2[2] << " ]"
+                                                           << "[ " << vec3[0] << ", " << vec3[1] << ", " << vec3[2] << " ]"
+                                                           << std::endl;
+    }
+
+    TEST(matrix_vec_multiply, matrix_vec)
+    {
+        double matrix[9] = {1, 1, 1, 2, 2, 2, 3, 3, 3};
+        double vec1[3] = {1, 2, 3};
+        double vec2[3], vec3[3] = {6, 12, 18};
+        matrix_vec_multiply(matrix, vec1, 3, 3, vec2);
+        ASSERT_EQ(1, vec_isequal(vec2, vec3, 3, 0.000001)) << "[ " << vec2[0] << ", " << vec2[1] << ", " << vec2[2] << " ]"
+                                                           << "[ " << vec3[0] << ", " << vec3[1] << ", " << vec3[2] << " ]"
+                                                           << std::endl;
+    }
+
+    TEST(rotate_vec, xaxis90)
+    {
+        double vec1[3] = {0, 0, 1};
+        double vec2[3];
+        double vec3[3] = {0, -1, 0};
+
+        rotate_vec(vec1, deg2rad(90), XAXIS, vec2);
+        ASSERT_EQ(1, vec_isequal(vec2, vec3, 3, 0.000001)) << "[ " << vec2[0] << ", " << vec2[1] << ", " << vec2[2] << " ]"
+                                                           << "[ " << vec3[0] << ", " << vec3[1] << ", " << vec3[2] << " ]"
+                                                           << std::endl;
+    }
+    TEST(rotate_vec, yaxis90)
+    {
+        double vec1[3] = {0, 0, 1};
+        double vec2[3];
+        double vec3[3] = {1, 0, 0};
+        rotate_vec(vec1, deg2rad(90), YAXIS, vec2);
+        ASSERT_EQ(1, vec_isequal(vec2, vec3, 3, 0.000001)) << "[ " << vec2[0] << ", " << vec2[1] << ", " << vec2[2] << " ]"
+                                                           << "[ " << vec3[0] << ", " << vec3[1] << ", " << vec3[2] << " ]"
+                                                           << std::endl;
+    }
+    TEST(rotate_vector, zaxis90)
+    {
+        double vec1[3] = {1, 0, 0};
+        double vec2[3];
+        double vec3[3] = {0, 1, 0};
+        rotate_vec(vec1, deg2rad(90), ZAXIS, vec2);
+        ASSERT_EQ(1, vec_isequal(vec2, vec3, 3, 0.000001)) << "[ " << vec2[0] << ", " << vec2[1] << ", " << vec2[2] << " ]"
+                                                           << "[ " << vec3[0] << ", " << vec3[1] << ", " << vec3[2] << " ]"
+                                                           << std::endl;
     }
 
     TEST(radar_isequal, correctness)
