@@ -40,3 +40,13 @@ To run the docker container iteratively:
 ## P4_Javascript
 
 ## p5_CoordinateTransformation
+To build the p3-c-opt container run:
+```
+    cd p3_C_Optimization
+    Docker build -f Dockerfile -t p3-c-opt .
+```
+
+To run the docker container iteratively:
+```
+    Docker run --rm -it --entrypoint bash -v `pwd`:/App/test001/p5_CorrdinateTransformation  p3-c-opt
+```
