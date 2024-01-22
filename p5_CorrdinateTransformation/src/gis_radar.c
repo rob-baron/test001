@@ -231,21 +231,25 @@ int vec_sub(double *vec1, double *vec2, double *result_vec, int n)
     return 0;
 }
 
-int matrix_vec_multiply(double *matrix, double *vec, int n, int m, double *vec_out)
+int matrix_vec_multiply(double *matrix, double *vec, int m, int n, double *vec_out)
 {
     for (int i = 0; i < n; i++)
         vec_out[i] = 0;
     for (int i = 0; i < m; i++)
+    {
         for (int j = 0; j < n; j++)
         {
-            vec_out[i] += matrix[i * n + j] * vec[j];
+            vec_out[i] += matrix[i * m + j] * vec[j];
         }
+    }
     return 0;
 }
 
 int rotate_vec(double *vec, double theta, enum axis_t axis, double *vec_rotated)
 {
-    double matrix[3 * 3] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    double matrix[3 * 3] = {1, 0, 0,
+                            0, 1, 0,
+                            0, 0, 1};
     switch (axis)
     {
     case XAXIS:
