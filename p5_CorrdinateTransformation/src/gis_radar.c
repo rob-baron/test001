@@ -87,6 +87,7 @@ int latstr2double(char *latstr, double *latdouble)
 /* lognitude string 10E to double -
     180W  0  180E
      W Grenich E
+    >360   180  0
 */
 
 int lonstr2double(char *lonstr, double *londouble)
@@ -108,6 +109,8 @@ int lonstr2double(char *lonstr, double *londouble)
         else
             ec = ERROR_4;
         ec = force_range(londouble, 0.0, 360.0, TOLERANCE);
+        if (*londouble == 360.0)
+            *londouble = 0.0;
     }
     return ec;
 }
@@ -194,23 +197,71 @@ int spherical2cartesian(spherical_t *pc, double *a)
     return 0;
 }
 
-int cartesian2spherical(double *a, spherical_t *pc)
+int cartesian2spherical(double *a, spherical_t *sc)
 {
-    pc->theta = atan(a[1] / a[0]);
-    pc->rho = sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
-    pc->phi = acos(a[2] / pc->rho);
+    if (a[0] == 0 && a[1] == 0 && a[2] == 0)
+        return ERROR_6; /* NaN as phi is undefined and if  */
+
+    double x, y, z, x2, y2, z2;
+    x = a[0];
+    y = a[1];
+    z = a[2];
+    x2 = a[0] * a[0];
+    y2 = a[1] * a[1];
+    z2 = a[2] * a[2];
+
+    sc->rho = sqrt(x2 + y2 + z2);
+
+    if (z > 0)
+        sc->theta = atan(sqrt(x2 + y2) / z);
+    else if (z < 0)
+        sc->theta = M_PI + atan(sqrt(x2 + y2) / z);
+    else
+        sc->theta = M_PI / 2;
+
+    if (x > 0.0 && y >= 0)
+        sc->phi = atan(y / x);
+    else if (x > 0.0 && y < 0)
+        sc->phi = atan(y / x) + 2 * M_PI;
+    else if (x < 0)
+        sc->phi = atan(y / x) + M_PI;
+    else if (x == 0 && y > 0)
+        sc->phi = M_PI / 2;
+    else if (x == 0 && y < 0)
+        sc->phi = M_PI;
+    else if (x == 0 && y == 0)
+        sc->phi = 0; /* here phi is undefined, but we can get here if a location is at the pole */
+
     return 0;
 }
 
-int location2spherical(location_t *loc, double rho, spherical_t *p)
+int location2spherical(location_t *loc, double rho, spherical_t *sc)
 {
     /* need some error checking to ensure
-       0 <= theta <= 180 <=
-       0 <= phi <= 360 <=
+        0 <= latitude <= 180
+        0 <= longitude <= 360
     */
-    p->theta = deg2rad(loc->latitude);
-    p->phi = deg2rad(loc->longitude);
-    p->rho = rho;
+    sc->theta = deg2rad(loc->latitude);
+    sc->phi = deg2rad(loc->longitude);
+    sc->rho = rho;
+    return 0;
+}
+
+int spherical2location(spherical_t *sc, location_t *loc)
+{
+    /* need some error checking to ensure
+       0 <= theta <= 1/2 * M_PI
+       0 <= phi <= 2*M_PI
+    */
+    loc->latitude = rad2deg(sc->theta);
+    loc->longitude = rad2deg(sc->phi);
+    return 0;
+}
+
+int spherical2locationl(spherical_t *sc, location_t *loc)
+{
+    sc->theta = rad2deg(loc->latitude);
+    sc->phi = rad2deg(loc->longitude);
     return 0;
 }
 
@@ -344,79 +395,83 @@ int radar_isequal(radar_t *rad1, radar_t *rad2)
     return 0;
 }
 
-int spherical_isequal(spherical_t *pol_loc1, spherical_t *pol_loc2)
+int spherical_isequal(spherical_t *spherical_loc1, spherical_t *shperical_loc2)
 {
-    if (cmpfp(pol_loc1->theta, pol_loc2->theta, TOLERANCE) == 0 &&
-        cmpfp(pol_loc1->phi, pol_loc2->phi, TOLERANCE) == 0 &&
-        cmpfp(pol_loc1->rho, pol_loc2->rho, TOLERANCE) == 0)
+    if (cmpfp(spherical_loc1->theta, shperical_loc2->theta, TOLERANCE) == 0 &&
+        cmpfp(spherical_loc1->phi, shperical_loc2->phi, TOLERANCE) == 0 &&
+        cmpfp(spherical_loc1->rho, shperical_loc2->rho, TOLERANCE) == 0)
         return 1;
     return 0;
 }
 
 int gis2radar(location_str_t *locstr1, location_str_t *locstr2, radar_t *radar)
 {
-    location_t loc1, loc2, delta;
+    location_t loc1, loc2;
     loc_str2double(locstr1, &loc1);
     loc_str2double(locstr2, &loc2);
+
     /* first to find the angle between the 2 locations*/
-    spherical_t loc_spherical1, loc_spherical2, loc_sphericalN;
-    double loc_vec1[3], loc_vec2[3], ref_vec3[3], loc_vecN[3], loc_to_loc2[3], diff_mag, ang_diff;
-    location2spherical(&loc1, EARTH_RADIUS, &loc_spherical1);
-    location2spherical(&loc2, EARTH_RADIUS, &loc_spherical2);
-    spherical2cartesian(&loc_spherical1, loc_vec1);
-    spherical2cartesian(&loc_spherical2, loc_vec2);
-    vec_sub(loc_vec1, loc_vec2, loc_to_loc2, 3);
-    diff_mag = vec_mag(loc_to_loc2, 3);
+    spherical_t spherical_loc1, spherical_loc2;
+    location2spherical(&loc1, EARTH_RADIUS, &spherical_loc1);
+    location2spherical(&loc2, EARTH_RADIUS, &spherical_loc2);
 
-    ang_diff = 2 * asin(diff_mag / (2 * EARTH_RADIUS)); /* in radians */
-    radar->range = tan(ang_diff) * EARTH_RADIUS;
+    /* rotate around z so that loc_spherical1.phi is at 180 */
+    if (spherical_loc1.phi < M_PI)
+    {
+        spherical_loc2.phi = spherical_loc2.phi + (M_PI - spherical_loc1.phi);
+    }
+    else if (spherical_loc1.phi > M_PI)
+    {
+        spherical_loc2.phi = spherical_loc2.phi - (spherical_loc1.phi - M_PI);
+    }
 
-    /* find the due north vector of same angle difference (in radians) */
-    /* need to increate rho to the plane of the radar coordinate */
+    double vec_loc2[3];
+    spherical2cartesian(&spherical_loc2, vec_loc2);
 
-    loc_sphericalN.theta = loc_spherical1.theta + ang_diff;
-    loc_sphericalN.phi = loc_spherical1.phi;
-    loc_sphericalN.rho = loc_spherical1.rho;
+    double vec_rotated2[3];
+    rotate_vec(vec_loc2, -spherical_loc1.theta, XAXIS, vec_rotated2);
 
-    spherical2cartesian(&loc_sphericalN, loc_vecN);
-    double loc_toN[3];
-    vec_sub(loc_vec1, loc_vecN, loc_toN, 3);
+    cartesian2spherical(vec_rotated2, &spherical_loc2);
+
+    radar->bearing = spherical_loc2.phi;
+    radar->range = tan(spherical_loc2.theta) * EARTH_RADIUS;
 
     return 0;
 }
 
-int radar2gis(location_str_t *loc_str, radar_t *radar, location_str_t *)
+int radar2gis(location_str_t *loc_str, radar_t *radar, location_str_t *loc_str2)
 {
-    /* find angular */
-    spherical_t spherical_loc1 = {0.0, 0.0, EARTH_RADIUS},
-                spherical_loc2;
-    spherical_loc2.theta = tan(radar->range / EARTH_RADIUS);
-    spherical_loc2.phi = radar->bearing;
-    spherical_loc2.rho = EARTH_RADIUS;
-    double vec_loc1[3], vec_loc2[3];
-    spherical2cartesian(&spherical_loc1, vec_loc1);
-    spherical2cartesian(&spherical_loc2, vec_loc2);
-
     location_t loc;
     loc_str2double(loc_str, &loc);
     spherical_t spherical_loc;
     location2spherical(&loc, EARTH_RADIUS, &spherical_loc);
 
+    /* layout the radar range/distance on top of the spherical coordinates */
+    spherical_t spherical_loc2;
+    spherical_loc2.theta = tan(radar->range / EARTH_RADIUS);
+    spherical_loc2.phi = radar->bearing;
+    spherical_loc2.rho = EARTH_RADIUS;
+
+    double vec_loc1[3], vec_loc2[3];
+    spherical2cartesian(&spherical_loc2, vec_loc2);
+
     double vec_rotated1[3], vec_rotated2[3];
-    rotate_vec(vec_loc2, loc.latitude, XAXIS, vec_rotated2);
-    rotate_vec(vec_loc1, loc.latitude, XAXIS, vec_rotated1); /* here just to test */
+    rotate_vec(vec_loc2, spherical_loc.theta, XAXIS, vec_rotated2);
 
-#if 1
-    /* this should work */
-    rotate_vec(vec_loc2, loc.longitude, ZAXIS, vec_rotated2);
-    rotate_vec(vec_loc1, loc.longitude, ZAXIS, vec_rotated1); /* here just to test */
-#else
-    /* but this is simpler */
     cartesian2spherical(vec_rotated2, &spherical_loc2);
-    cartesian2spherical(vec_rotated1, &spherical_loc1);
-    spherical_loc1.phi += loc.logitude;
-    spherical_loc2.phi += loc.logitude;
-#endif
 
+    if (spherical_loc.phi < M_PI)
+    {
+        spherical_loc2.phi = spherical_loc2.phi - (M_PI - spherical_loc.phi);
+    }
+    else if (spherical_loc.phi > M_PI)
+    {
+        spherical_loc2.phi = spherical_loc2.phi + (spherical_loc.phi - M_PI);
+    }
+
+    location_t loc2;
+    spherical2location(&spherical_loc2, &loc2);
+
+    loc_double2str(&loc2, loc_str2); /* output */
     return 0;
 }
