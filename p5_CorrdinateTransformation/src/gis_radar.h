@@ -6,6 +6,7 @@
 #define ERROR_3 3
 #define ERROR_4 4
 #define ERROR_5 5
+#define ERROR_6 6
 
 #define ERROR_100 100
 #define LATLON_STRLEN 100
@@ -16,7 +17,7 @@
 // error_msg[2]="input string does not match '^([0-9]+[.]?[0-9]*)([NSEW])$'";
 // error_msg[3]="latitude is not 0 <= latitude <= 90"
 // error_msg[5]="out of bounds"
-
+// error_msg[6]="NaN"
 // error_msg[100] = "System Error"
 
 #ifdef __cplusplus
@@ -64,13 +65,15 @@ extern "C"
     int lonstr2double(char *lonstr, double *londouble);
     int latdouble2str(double latdboule, char *latstr, unsigned long n);
     int londouble2str(double londouble, char *lonstr, unsigned long n);
+
     int loc_str2double(location_str_t *locstr, location_t *loc);
     int loc_double2str(location_t *loc, location_str_t *locstr);
 
-    int location2spherical(location_t *loc, double rho, spherical_t *p);
-    int location2spherical(location_t *loc, double rho, spherical_t *p);
-    int spherical2cartesian(spherical_t *pc, double *a);
-    int cartesian2spherical(double *a, spherical_t *pc);
+    int location2spherical(location_t *loc, double rho, spherical_t *sc);
+    int spherical2locationl(spherical_t *sc, location_t *loc);
+
+    int spherical2cartesian(spherical_t *sc, double *a);
+    int cartesian2spherical(double *a, spherical_t *sc);
     int cmpfp(double a, double b, double tollerance);
     int vec_isequal(double *vec1, double *vec2, int n, double tollarance);
 
