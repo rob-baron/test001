@@ -429,7 +429,7 @@ int gis2radar(location_str_t *locstr1, location_str_t *locstr2, radar_t *radar)
     spherical2cartesian(&spherical_loc2, vec_loc2);
 
     double vec_rotated2[3];
-    rotate_vec(vec_loc2, -spherical_loc1.theta, XAXIS, vec_rotated2);
+    rotate_vec(vec_loc2, spherical_loc1.theta, YAXIS, vec_rotated2);
 
     cartesian2spherical(vec_rotated2, &spherical_loc2);
 
