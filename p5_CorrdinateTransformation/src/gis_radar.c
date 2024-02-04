@@ -185,15 +185,48 @@ int loc_double2str(location_t *loc, location_str_t *locstr)
     return ec;
 }
 
+int loc_str_isequal(location_str_t *locstr1, location_str_t *locstr2)
+{
+    /* use the cvt_string to split */
+    double lat1, lon1, lat2, lon2;
+    int lat_are_equal = 0, lon_are_equal = 0;
+    char latch1, lonch1, latch2, lonch2;
+    cvt_string(locstr1->latitude, &lat1, &latch1);
+    cvt_string(locstr1->longitude, &lon1, &lonch1);
+    cvt_string(locstr2->latitude, &lat2, &latch2);
+    cvt_string(locstr2->longitude, &lon2, &lonch2);
+    if (cmpfp(lat1, lat2, 0.0000001) == 0)
+    {
+        if (cmpfp(lat1, 0.0, 0.0000001) == 0)
+            lat_are_equal = 1;
+        else
+        {
+            if (latch1 == latch2)
+                lat_are_equal = 1;
+        }
+    }
+    if (cmpfp(lon1, lon2, 0.0000001) == 0)
+        if (cmpfp(lon1, 0.0, 0.0000001) == 0)
+            lon_are_equal = 1;
+        else
+        {
+            if (lonch1 == lonch2)
+                lon_are_equal = 1;
+        }
+    if (lat_are_equal && lon_are_equal)
+        return 1;
+    return 0;
+}
+
 int spherical2cartesian(spherical_t *pc, double *a)
 {
-    /* x=rho*sin(theta)cos(phi)
-       y=rho*sin(theta)sin(phi)
-       z=rho*cos(theta)
+    /* x=r*sin(theta)cos(phi)
+       y=r*sin(theta)sin(phi)
+       z=r*cos(theta)
     */
-    a[0] = pc->rho * sin(pc->theta) * cos(pc->phi);
-    a[1] = pc->rho * sin(pc->theta) * sin(pc->phi);
-    a[2] = pc->rho * cos(pc->theta);
+    a[0] = pc->r * sin(pc->theta) * cos(pc->phi);
+    a[1] = pc->r * sin(pc->theta) * sin(pc->phi);
+    a[2] = pc->r * cos(pc->theta);
     return 0;
 }
 
@@ -210,7 +243,7 @@ int cartesian2spherical(double *a, spherical_t *sc)
     y2 = a[1] * a[1];
     z2 = a[2] * a[2];
 
-    sc->rho = sqrt(x2 + y2 + z2);
+    sc->r = sqrt(x2 + y2 + z2);
 
     if (z > 0)
         sc->theta = atan(sqrt(x2 + y2) / z);
@@ -235,7 +268,7 @@ int cartesian2spherical(double *a, spherical_t *sc)
     return 0;
 }
 
-int location2spherical(location_t *loc, double rho, spherical_t *sc)
+int location2spherical(location_t *loc, double r, spherical_t *sc)
 {
     /* need some error checking to ensure
         0 <= latitude <= 180
@@ -243,7 +276,7 @@ int location2spherical(location_t *loc, double rho, spherical_t *sc)
     */
     sc->theta = deg2rad(loc->latitude);
     sc->phi = deg2rad(loc->longitude);
-    sc->rho = rho;
+    sc->r = r;
     return 0;
 }
 
@@ -399,7 +432,7 @@ int spherical_isequal(spherical_t *spherical_loc1, spherical_t *shperical_loc2)
 {
     if (cmpfp(spherical_loc1->theta, shperical_loc2->theta, TOLERANCE) == 0 &&
         cmpfp(spherical_loc1->phi, shperical_loc2->phi, TOLERANCE) == 0 &&
-        cmpfp(spherical_loc1->rho, shperical_loc2->rho, TOLERANCE) == 0)
+        cmpfp(spherical_loc1->r, shperical_loc2->r, TOLERANCE) == 0)
         return 1;
     return 0;
 }
@@ -448,9 +481,9 @@ int radar2gis(location_str_t *loc_str, radar_t *radar, location_str_t *loc_str2)
 
     /* layout the radar range/distance on top of the spherical coordinates */
     spherical_t spherical_loc2;
-    spherical_loc2.theta = tan(radar->range / EARTH_RADIUS);
+    spherical_loc2.theta = atan(radar->range / EARTH_RADIUS);
     spherical_loc2.phi = radar->bearing;
-    spherical_loc2.rho = EARTH_RADIUS;
+    spherical_loc2.r = EARTH_RADIUS;
 
     double vec_loc1[3], vec_loc2[3];
     spherical2cartesian(&spherical_loc2, vec_loc2);

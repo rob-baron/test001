@@ -256,14 +256,14 @@ namespace
         {
             sc_cmp.theta = deg2rad(sc_degree[x].theta);
             sc_cmp.phi = deg2rad(sc_degree[x].phi);
-            sc_cmp.rho = deg2rad(sc_degree[x].rho);
+            sc_cmp.r = deg2rad(sc_degree[x].r);
             spherical2cartesian(&sc_cmp, a);
             cartesian2spherical(a, &sc);
             ASSERT_EQ(1, spherical_isequal(&sc, &sc_cmp)) << "x=" << x
-                                                          << "\n[ " << sc_degree[x].theta << ", " << sc_degree[x].phi << ", " << sc_degree[x].rho << " ]"
-                                                          << "\n[ " << sc_cmp.theta << ", " << sc_cmp.phi << ", " << sc_cmp.rho << " ]"
+                                                          << "\n[ " << sc_degree[x].theta << ", " << sc_degree[x].phi << ", " << sc_degree[x].r << " ]"
+                                                          << "\n[ " << sc_cmp.theta << ", " << sc_cmp.phi << ", " << sc_cmp.r << " ]"
                                                           << "\n[ " << a[0] << ", " << a[1] << ", " << a[2] << " ]"
-                                                          << "\n[ " << sc.theta << ", " << sc.phi << ", " << sc.rho << " ]"
+                                                          << "\n[ " << sc.theta << ", " << sc.phi << ", " << sc.r << " ]"
                                                           << std::endl;
         }
     }
@@ -274,8 +274,8 @@ namespace
         double a[3] = {0.0, 0.0, 5.0};
 
         cartesian2spherical(a, &sc);
-        ASSERT_EQ(1, spherical_isequal(&sc, &sc_cmp)) << "[ " << sc.theta << ", " << sc.phi << ", " << sc.rho << " ]"
-                                                      << "[ " << sc_cmp.theta << ", " << sc_cmp.phi << ", " << sc_cmp.rho << " ]"
+        ASSERT_EQ(1, spherical_isequal(&sc, &sc_cmp)) << "[ " << sc.theta << ", " << sc.phi << ", " << sc.r << " ]"
+                                                      << "[ " << sc_cmp.theta << ", " << sc_cmp.phi << ", " << sc_cmp.r << " ]"
                                                       << std::endl;
     }
 

@@ -53,7 +53,7 @@ extern "C"
     {
         double theta;
         double phi;
-        double rho;
+        double r;
     } spherical_t;
 
     int cvt_string(char *input, double *num, char *c);
@@ -68,9 +68,10 @@ extern "C"
 
     int loc_str2double(location_str_t *locstr, location_t *loc);
     int loc_double2str(location_t *loc, location_str_t *locstr);
+    int loc_str_isequal(location_str_t *locstr1, location_str_t *loc_str2);
 
-    int location2spherical(location_t *loc, double rho, spherical_t *sc);
-    int spherical2locationl(spherical_t *sc, location_t *loc);
+    int location2spherical(location_t *loc, double r, spherical_t *sc);
+    int spherical2location(spherical_t *sc, location_t *loc);
 
     int spherical2cartesian(spherical_t *sc, double *a);
     int cartesian2spherical(double *a, spherical_t *sc);

@@ -9,13 +9,6 @@
 namespace
 {
 
-    typedef struct
-    {
-        location_t loc1;
-        location_t loc2;
-        radar_t rad;
-    } gis2location_t;
-
     TEST(gis2radar, ex0N0Eto1N0E_1)
     {
         location_t loc1, loc2;
@@ -39,10 +32,10 @@ namespace
         // spherical coordinates in radians
         spherical_t cmp_loc_spherical1 = {M_PI / 2, M_PI, EARTH_RADIUS},
                     cmp_loc_spherical2 = {89.0 * M_PI / 180.0, M_PI, EARTH_RADIUS};
-        ASSERT_EQ(1, spherical_isequal(&loc_spherical1, &cmp_loc_spherical1)) << "loc 1 = [" << loc_spherical1.theta << "," << loc_spherical1.phi << "," << loc_spherical1.rho << "]\n"
-                                                                              << "cmp 1 = [" << cmp_loc_spherical1.theta << "," << cmp_loc_spherical1.phi << "," << cmp_loc_spherical1.rho << "]" << std::endl;
-        ASSERT_EQ(1, spherical_isequal(&loc_spherical2, &cmp_loc_spherical2)) << "loc 2 = [" << loc_spherical2.theta << "," << loc_spherical2.phi << "," << loc_spherical2.rho << "]\n"
-                                                                              << "cmp 2 = [" << cmp_loc_spherical2.theta << "," << cmp_loc_spherical2.phi << "," << cmp_loc_spherical2.rho << "]" << std::endl;
+        ASSERT_EQ(1, spherical_isequal(&loc_spherical1, &cmp_loc_spherical1)) << "loc 1 = [" << loc_spherical1.theta << "," << loc_spherical1.phi << "," << loc_spherical1.r << "]\n"
+                                                                              << "cmp 1 = [" << cmp_loc_spherical1.theta << "," << cmp_loc_spherical1.phi << "," << cmp_loc_spherical1.r << "]" << std::endl;
+        ASSERT_EQ(1, spherical_isequal(&loc_spherical2, &cmp_loc_spherical2)) << "loc 2 = [" << loc_spherical2.theta << "," << loc_spherical2.phi << "," << loc_spherical2.r << "]\n"
+                                                                              << "cmp 2 = [" << cmp_loc_spherical2.theta << "," << cmp_loc_spherical2.phi << "," << cmp_loc_spherical2.r << "]" << std::endl;
     }
 
     TEST(gis2radar, ex0N0Eto10E_3)
@@ -63,10 +56,10 @@ namespace
         // spherical coordinates in radians
         spherical_t cmp_spherical_loc1 = {M_PI / 2, M_PI, EARTH_RADIUS},
                     cmp_spherical_loc2 = {89.0 * M_PI / 180.0, M_PI, EARTH_RADIUS};
-        ASSERT_EQ(1, spherical_isequal(&spherical_loc1, &cmp_spherical_loc1)) << "loc 1 = [" << spherical_loc1.theta << "," << spherical_loc1.phi << "," << spherical_loc1.rho << "]\n"
-                                                                              << "cmp 1 = [" << cmp_spherical_loc1.theta << "," << cmp_spherical_loc1.phi << "," << cmp_spherical_loc1.rho << "]" << std::endl;
-        ASSERT_EQ(1, spherical_isequal(&spherical_loc2, &cmp_spherical_loc2)) << "loc 2 = [" << spherical_loc2.theta << "," << spherical_loc2.phi << "," << spherical_loc2.rho << "]\n"
-                                                                              << "cmp 2 = [" << cmp_spherical_loc2.theta << "," << cmp_spherical_loc2.phi << "," << cmp_spherical_loc2.rho << "]" << std::endl;
+        ASSERT_EQ(1, spherical_isequal(&spherical_loc1, &cmp_spherical_loc1)) << "loc 1 = [" << spherical_loc1.theta << "," << spherical_loc1.phi << "," << spherical_loc1.r << "]\n"
+                                                                              << "cmp 1 = [" << cmp_spherical_loc1.theta << "," << cmp_spherical_loc1.phi << "," << cmp_spherical_loc1.r << "]" << std::endl;
+        ASSERT_EQ(1, spherical_isequal(&spherical_loc2, &cmp_spherical_loc2)) << "loc 2 = [" << spherical_loc2.theta << "," << spherical_loc2.phi << "," << spherical_loc2.r << "]\n"
+                                                                              << "cmp 2 = [" << cmp_spherical_loc2.theta << "," << cmp_spherical_loc2.phi << "," << cmp_spherical_loc2.r << "]" << std::endl;
     }
 
     TEST(gis2radar, ex0N0Eto1N0E_4)
@@ -116,10 +109,10 @@ namespace
         cartesian2spherical(vec_rotated2, &spherical_loc2);
         spherical_t cmp_spherical_loc1 = {0.0, 0.0, EARTH_RADIUS},
                     cmp_spherical_loc2 = {0.017453292519947913, 0, EARTH_RADIUS};
-        ASSERT_EQ(1, spherical_isequal(&spherical_loc1, &cmp_spherical_loc1)) << "loc 1 = [" << spherical_loc1.theta << "," << spherical_loc1.phi << "," << spherical_loc1.rho << "]\n"
-                                                                              << "cmp 1 = [" << cmp_spherical_loc1.theta << "," << cmp_spherical_loc1.phi << "," << cmp_spherical_loc1.rho << "]" << std::endl;
-        ASSERT_EQ(1, spherical_isequal(&spherical_loc2, &cmp_spherical_loc2)) << "loc 2 = [" << spherical_loc2.theta << "," << spherical_loc2.phi << "," << spherical_loc2.rho << "]\n"
-                                                                              << "cmp 2 = [" << cmp_spherical_loc2.theta << "," << cmp_spherical_loc2.phi << "," << cmp_spherical_loc2.rho << "]" << std::endl;
+        ASSERT_EQ(1, spherical_isequal(&spherical_loc1, &cmp_spherical_loc1)) << "loc 1 = [" << spherical_loc1.theta << "," << spherical_loc1.phi << "," << spherical_loc1.r << "]\n"
+                                                                              << "cmp 1 = [" << cmp_spherical_loc1.theta << "," << cmp_spherical_loc1.phi << "," << cmp_spherical_loc1.r << "]" << std::endl;
+        ASSERT_EQ(1, spherical_isequal(&spherical_loc2, &cmp_spherical_loc2)) << "loc 2 = [" << spherical_loc2.theta << "," << spherical_loc2.phi << "," << spherical_loc2.r << "]\n"
+                                                                              << "cmp 2 = [" << cmp_spherical_loc2.theta << "," << cmp_spherical_loc2.phi << "," << cmp_spherical_loc2.r << "]" << std::endl;
     }
 
     TEST(gis2radar, ex0N0Eto1N0E_7)
