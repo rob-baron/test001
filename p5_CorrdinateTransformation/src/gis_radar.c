@@ -206,13 +206,17 @@ int loc_str_isequal(location_str_t *locstr1, location_str_t *locstr2)
         }
     }
     if (cmpfp(lon1, lon2, 0.0000001) == 0)
+    {
         if (cmpfp(lon1, 0.0, 0.0000001) == 0)
+        {
             lon_are_equal = 1;
+        }
         else
         {
             if (lonch1 == lonch2)
                 lon_are_equal = 1;
         }
+    }
     if (lat_are_equal && lon_are_equal)
         return 1;
     return 0;
@@ -466,8 +470,8 @@ int gis2radar(location_str_t *locstr1, location_str_t *locstr2, radar_t *radar)
 
     cartesian2spherical(vec_rotated2, &spherical_loc2);
 
-    radar->bearing = spherical_loc2.phi;
-    radar->range = tan(spherical_loc2.theta) * EARTH_RADIUS;
+    radar->bearing = rad2deg(spherical_loc2.phi);
+    radar->range = fabs(tan(spherical_loc2.theta) * EARTH_RADIUS);
 
     return 0;
 }

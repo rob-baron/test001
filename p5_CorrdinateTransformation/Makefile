@@ -2,7 +2,7 @@
 CC:=gcc
 CCFLAGS:=-I. -Wall -Isrc
 CPP:=g++
-CPPFLAGS:=-I. -Wall -Isrc
+CPPFLAGS:=-I. -Wall -Isrc -std=c++14
 
 gis_radar.o: src/gis_radar.c src/gis_radar.h
 	$(CC) $(CCFLAGS)  -c  src/gis_radar.c -o gis_radar.o

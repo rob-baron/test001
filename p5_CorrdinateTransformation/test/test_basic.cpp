@@ -179,6 +179,69 @@ namespace
         ASSERT_EQ(0, strncmp(locstr.longitude, "10.000000E", 100)) << "lon = " << locstr.longitude << std::endl;
     }
 
+#if 0
+    TEST(addrelativelocation, correctness)
+    {
+        typedef struct
+        {
+            location_str_t loc;
+            location_str_t rel_loc;
+            location_str_t summed_loc;
+        } summed_location_test_t;
+
+        const int num_rel_tests = 32;
+        summed_location_test_t loc_data[num_rel_tests] = {
+            {{"0N", "0E"}, {"1N", "OE"}, {"1N", "0E"}},
+            {{"0N", "0E"}, {"1N", "1E"}, {"1N", "1E"}},
+            {{"0N", "0E"}, {"0N", "1E"}, {"0N", "1E"}},
+            {{"0N", "0E"}, {"1S", "1E"}, {"1S",""}},
+            {{"0N", "0E"}, {"1S", "OE"}, {"1S",""}},
+            {{"0N", "0E"}, {"1S", "1W"}, {"1S",""}},
+            {{"0N", "0E"}, {"0N", "1E"}, {"0N",""}},
+            {{"0N", "0E"}, {"1N", "1W"}, {"1N",""}},
+
+            {{"0N", "180E"}, {"1N", "OE"}, {"1N",""}},
+            {{"0N", "180E"}, {"1N", "1E"}, {"1N",""}},
+            {{"0N", "180E"}, {"0N", "1E"}, {"0N",""}},
+            {{"0N", "180E"}, {"1S", "1E"}, {"1S",""}},
+            {{"0N", "180E"}, {"1S", "OE"}, {"1S",""}},
+            {{"0N", "180E"}, {"1S", "1W"}, {"1S",""}},
+            {{"0N", "180E"}, {"0N", "1E"}, {"0N",""}},
+            {{"0N", "180E"}, {"1N", "1W"}, {"1N",""}},
+
+            {{"90N", "0E"}, {"1N", "OE"}, {"89N","180E"}},
+            {{"90N", "0E"}, {"1N", "1E"}, {"89N","135E"}},
+            {{"90N", "0E"}, {"0N", "1E"}, {"89N","90E"}},
+            {{"90N", "0E"}, {"1S", "1E"}, {"89N","45E"}},
+            {{"90N", "0E"}, {"1S", "OE"}, {"89N","0E"}},
+            {{"90N", "0E"}, {"1S", "1W"}, {"89N","45W"}},
+            {{"90N", "0E"}, {"0N", "1E"}, {"89N","90W"}},
+            {{"90N", "0E"}, {"1N", "1W"}, {"89N","135W"}},
+
+            {{"90S", "0E"}, {"1N", "OE"}, {"89S","180E"}},
+            {{"90S", "0E"}, {"1N", "1E"}, {"89S","135E"}},
+            {{"90S", "0E"}, {"0N", "1E"}, {"89S","90E"}},
+            {{"90S", "0E"}, {"1S", "1E"}, {"89S","45E"}},
+            {{"90S", "0E"}, {"1S", "OE"}, {"89S","0E"}},
+            {{"90S", "0E"}, {"1S", "1W"}, {"89S","45W"}},
+            {{"90S", "0E"}, {"0N", "1E"}, {"89S","90W"}},
+            {{"90S", "0E"}, {"1N", "1W"}, {"89S","135W"}},
+
+        };
+
+        location_str_t loc_str2;
+        for (int j = 0; j < num_rel_tests; j++)
+        {
+            add_rel_position(&loc_data[i].loc, &loc_data[j].rel_loc, &loc_str2);
+            ASSERT_EQ(1, loc_str2, loc_data[i].summed_loc) << i << "\n"
+                                                           << "  { " << loc_data[i].loc.latitude << ", " << loc_data[i].loc.longitude << "} \n"
+                                                           << "  { " << loc_data[i].rel_loc.latitude << ", " << loc_data[i].rel_loc.longitude << "} \n"
+                                                           << "  { " << loc_data[i].summed_loc.latitude << ", " << loc_data[i].summed_loc.longitude << "} \n"
+                                                           << std::endl;
+        }
+    }
+#endif
+
     TEST(cmpfp, correctness)
     {
         ASSERT_EQ(0, cmpfp(2.1, 2.1, 0.001)) << "2.1, 2.1, 0.001" << std::endl;

@@ -65,6 +65,7 @@ extern "C"
     int lonstr2double(char *lonstr, double *londouble);
     int latdouble2str(double latdboule, char *latstr, unsigned long n);
     int londouble2str(double londouble, char *lonstr, unsigned long n);
+    int add_rel_position(location_str_t *loc_str1, location_str_t *rel_loc_str, location_str_t *summed_loc_str);
 
     int loc_str2double(location_str_t *locstr, location_t *loc);
     int loc_double2str(location_t *loc, location_str_t *locstr);
