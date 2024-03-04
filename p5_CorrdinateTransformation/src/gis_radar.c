@@ -486,14 +486,14 @@ int radar2gis(location_str_t *loc_str, radar_t *radar, location_str_t *loc_str2)
     /* layout the radar range/distance on top of the spherical coordinates */
     spherical_t spherical_loc2;
     spherical_loc2.theta = atan(radar->range / EARTH_RADIUS);
-    spherical_loc2.phi = radar->bearing;
+    spherical_loc2.phi = deg2rad(radar->bearing);
     spherical_loc2.r = EARTH_RADIUS;
 
     double vec_loc1[3], vec_loc2[3];
     spherical2cartesian(&spherical_loc2, vec_loc2);
 
     double vec_rotated1[3], vec_rotated2[3];
-    rotate_vec(vec_loc2, spherical_loc.theta, XAXIS, vec_rotated2);
+    rotate_vec(vec_loc2, -spherical_loc.theta, YAXIS, vec_rotated2);
 
     cartesian2spherical(vec_rotated2, &spherical_loc2);
 
