@@ -1,7 +1,4 @@
-
-
 #include "gis_radar.h"
-
 #include <limits.h>
 #include <math.h>
 #include "gtest/gtest.h"

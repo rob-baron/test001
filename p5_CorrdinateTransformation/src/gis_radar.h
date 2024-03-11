@@ -56,6 +56,11 @@ extern "C"
         double r;
     } spherical_t;
 
+    typedef struct
+    {
+        double vec[3];
+    } vec_t;
+
     int cvt_string(char *input, double *num, char *c);
     int force_range(double *value, double min, double max, double tollerance);
 

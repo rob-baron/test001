@@ -249,6 +249,12 @@ int cartesian2spherical(double *a, spherical_t *sc)
 
     sc->r = sqrt(x2 + y2 + z2);
 
+    /* pragmatic, force small numbers to zero */
+    if (x < 0.000001)
+        x = 0.0;
+    if (y < 0.000001)
+        y = 0.0;
+
     if (z > 0)
         sc->theta = atan(sqrt(x2 + y2) / z);
     else if (z < 0)
