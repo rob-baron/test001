@@ -296,37 +296,57 @@ namespace
                                                           << std::endl;
     }
 
-    TEST(cartesian2spherical, correctnessr)
+    TEST(cartesian2spherical, correctness)
     {
         spherical_t sc,
-            sc_cmp,
-            sc_degree[13] = {
-                {0, 0, 5},
-                {10, 0, 5},
-                {20, 0, 5},
-                {45, 0, 5},
-                {90, 0, 5},
-                {90, 45, 5},
-                {90, 90, 5},
-                {90, 135, 5},
-                {90, 180, 5},
-                {90, 225, 5},
-                {90, 270, 5},
-                {90, 315, 5},
-                {180, 0, 5}};
-        double a[3];
-        for (int x = 0; x < 12; x++)
+            sc_cmp;
+
+        typedef struct
         {
-            sc_cmp.theta = deg2rad(sc_degree[x].theta);
-            sc_cmp.phi = deg2rad(sc_degree[x].phi);
-            sc_cmp.r = deg2rad(sc_degree[x].r);
+            spherical_t sc_deg;
+            double vec[3];
+        } testdata_t;
+        const int td_len = 21;
+        testdata_t td[td_len] = {
+            /*   {{theta, phi, r }, { x, y, z}}           */
+            {{0, 0, 5}, {0, 0, 5}},
+            {{22.5, 0, 5}, {-1.9134172, 0, 4.6193977}},
+            {{45, 0, 5}, {-3.5355339, 0, 3.5355339}},
+            {{67.5, 0, 5}, {-4.6193977, 0, 1.9134172}},
+            {{90, 0, 5}, {-5, 0, 0}},
+            {{90, 22.5, 5}, {-4.6193977, 1.9134172, 0}},
+            {{90, 45.0, 5}, {-3.5355339, 3.5355339, 0}},
+            {{90, 67.5, 5}, {-1.9134172, 4.6193977, 0}},
+            {{90, 90.0, 5}, {0, 5, 0}},
+            {{90, 112.5, 5}, {1.9134172, 4.6193977, 0}},
+            {{90, 135, 5}, {3.5355339, 3.5355339, 0}},
+            {{90, 157.5, 5}, {4.6193977, 1.9134172, 0}},
+            {{90, 180, 5}, {5, 0, 0}},
+            {{90, 202.5, 5}, {4.6193977, -1.9134172, 0}},
+            {{90, 225, 5}, {3.5355339, -3.5355339, 0}},
+            {{90, 247.5, 5}, {1.9134172, -4.6193977, 0}},
+            {{90, 270, 5}, {0, -5, 0}},
+            {{90, 292.5, 5}, {-1.9134172, -4.6193977, 0}},
+            {{90, 315, 5}, {-3.5355339, -3.5355339, 0}},
+            {{90, 337.5, 5}, {-4.6193977, -1.9134172, 0}},
+            {{180, 0, 5}, {0, 0, -5}}};
+        double a[3];
+        for (int x = 0; x < td_len; x++)
+        {
+            sc_cmp.theta = deg2rad(td[x].sc_deg.theta);
+            sc_cmp.phi = deg2rad(td[x].sc_deg.phi);
+            sc_cmp.r = td[x].sc_deg.r;
             spherical2cartesian(&sc_cmp, a);
+            EXPECT_EQ(1, vec_isequal(a, td[x].vec, 3, 0.0000001)) << "x=" << x
+                                                                  << "\n cal [ " << a[0] << ", " << a[1] << ", " << a[2] << " ]"
+                                                                  << "\n ref [ " << td[x].vec[0] << ", " << td[x].vec[1] << ", " << td[x].vec[2] << " ]"
+                                                                  << std::endl;
             cartesian2spherical(a, &sc);
-            ASSERT_EQ(1, spherical_isequal(&sc, &sc_cmp)) << "x=" << x
-                                                          << "\n[ " << sc_degree[x].theta << ", " << sc_degree[x].phi << ", " << sc_degree[x].r << " ]"
-                                                          << "\n[ " << sc_cmp.theta << ", " << sc_cmp.phi << ", " << sc_cmp.r << " ]"
-                                                          << "\n[ " << a[0] << ", " << a[1] << ", " << a[2] << " ]"
-                                                          << "\n[ " << sc.theta << ", " << sc.phi << ", " << sc.r << " ]"
+            EXPECT_EQ(1, spherical_isequal(&sc, &sc_cmp)) << "x=" << x
+                                                          << "\nDeg [ " << td[x].sc_deg.theta << ", " << td[x].sc_deg.phi << ", " << td[x].sc_deg.r << " ]"
+                                                          << "\nRad [ " << sc_cmp.theta << ", " << sc_cmp.phi << ", " << sc_cmp.r << " ]"
+                                                          << "\nVec [ " << a[0] << ", " << a[1] << ", " << a[2] << " ]"
+                                                          << "\nRAD [ " << sc.theta << ", " << sc.phi << ", " << sc.r << " ]"
                                                           << std::endl;
         }
     }

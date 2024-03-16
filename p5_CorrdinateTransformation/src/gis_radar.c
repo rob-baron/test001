@@ -224,11 +224,7 @@ int loc_str_isequal(location_str_t *locstr1, location_str_t *locstr2)
 
 int spherical2cartesian(spherical_t *pc, double *a)
 {
-    /* x=r*sin(theta)cos(phi)
-       y=r*sin(theta)sin(phi)
-       z=r*cos(theta)
-    */
-    a[0] = pc->r * sin(pc->theta) * cos(pc->phi);
+    a[0] = pc->r * sin(pc->theta) * cos(pc->phi + M_PI);
     a[1] = pc->r * sin(pc->theta) * sin(pc->phi);
     a[2] = pc->r * cos(pc->theta);
     return 0;
@@ -243,17 +239,20 @@ int cartesian2spherical(double *a, spherical_t *sc)
     x = a[0];
     y = a[1];
     z = a[2];
+
+    /* pragmatic, force numbers close to zero to zero */
+    if (fabs(x) < 0.000001)
+        x = 0.0;
+    if (fabs(y) < 0.000001)
+        y = 0.0;
+    if (fabs(z) < 0.000001)
+        z = 0.0;
+
     x2 = a[0] * a[0];
     y2 = a[1] * a[1];
     z2 = a[2] * a[2];
 
     sc->r = sqrt(x2 + y2 + z2);
-
-    /* pragmatic, force small numbers to zero */
-    if (x < 0.000001)
-        x = 0.0;
-    if (y < 0.000001)
-        y = 0.0;
 
     if (z > 0)
         sc->theta = atan(sqrt(x2 + y2) / z);
@@ -262,16 +261,20 @@ int cartesian2spherical(double *a, spherical_t *sc)
     else
         sc->theta = M_PI / 2;
 
-    if (x > 0.0 && y >= 0)
-        sc->phi = atan(y / x);
+    if (x < 0 && y > 0)
+        sc->phi = -atan(y / x);
+    else if (x > 0.0 && y > 0)
+        sc->phi = M_PI / 2 + atan(x / y);
     else if (x > 0.0 && y < 0)
-        sc->phi = atan(y / x) + 2 * M_PI;
-    else if (x < 0)
-        sc->phi = atan(y / x) + M_PI;
+        sc->phi = M_PI - atan(y / x);
+    else if (x < 0 && y < 0)
+        sc->phi = 2 * M_PI - atan(y / x);
+    else if (x > 0 && y == 0)
+        sc->phi = M_PI;
     else if (x == 0 && y > 0)
         sc->phi = M_PI / 2;
     else if (x == 0 && y < 0)
-        sc->phi = M_PI;
+        sc->phi = M_PI * 3 / 2;
     else if (x == 0 && y == 0)
         sc->phi = 0; /* here phi is undefined, but we can get here if a location is at the pole */
 
